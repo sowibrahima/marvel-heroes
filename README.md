@@ -181,6 +181,7 @@ Voici un exemple de document stocké dans MongoDB, obtenu grâce à la commande 
 ## Liens utiles
 
 * Suggestion avec Elasticsearch : https://www.elastic.co/guide/en/elasticsearch/reference/7.5/search-suggesters.html#completion-suggester
+* Query Boosting (Elasticsearch) : https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#_boosting
 * Aggrégations avec MongoDB : https://docs.mongodb.com/manual/meta/aggregation-quick-reference/
 
 Drivers Java utilisés : 
