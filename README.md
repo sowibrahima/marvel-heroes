@@ -69,15 +69,114 @@ Dans un terminal, à la racine du projet, lancez la commande `sbt`, puis la comm
 [marvel-heroes] $ ~run
 ```
 
-
-
-
 ## Dataset
 
 Les données sont disponibles dans le dossier `scripts/all-heroes.csv` et proviennent de plusieurs sources de données : 
 * [API Marvel](https://developer.marvel.com/)
 * [SuperheroDB](https://www.superherodb.com/)
 
+## Exemples de documents
+
+### MongoDB
+
+Voici un exemple de document stocké dans MongoDB, obtenu grâce à la commande `db.heroes.findOne({"name": "Iron Man"})` : 
+
+```json
+{
+  "_id": ObjectId("5e46b803a260708ef2636b8f"),
+  "id": "1009368",
+  "name": "Iron Man",
+  "description": "Wounded, captured and forced to build a weapon by his enemies, billionaire industrialist Tony Stark instead created an advanced suit of armor to save his life and escape captivity. Now with a new outlook on life, Tony uses his money and intelligence to make the world a safer, better place as Iron Man.",
+  "imageUrl": "https://i.annihil.us/u/prod/marvel/i/mg/9/c0/527bb7b37ff55.jpg",
+  "backgroundImageUrl": "https://x.annihil.us/u/prod/marvel/i/mg/c/90/537bb1f94fa4f.gif",
+  "externalLink": "https://marvel.com/universe/Iron_Man_(Anthony_Stark)",
+  "identity": {
+    "secretIdentities": [
+      "Anthony Edward Stark",
+      "Tony"
+    ],
+    "birthPlace": "Long Island, New York",
+    "occupation": "Inventor, Industrialist; former United States Secretary of Defense",
+    "aliases": [
+      "Iron Man",
+      "The Invincible Iron Man",
+      "Tony Stark"
+    ],
+    "alignment": "good",
+    "firstAppearance": "Tales of Suspence #39 (March, 1963)",
+    "yearAppearance": 1963,
+    "universe": "Marvel"
+  },
+  "appearance": {
+    "gender": "Male",
+    "race": "Human",
+    "type": "",
+    "height": 198,
+    "weight": 191,
+    "eyeColor": "blue",
+    "hairColor": "Black"
+  },
+  "teams": [
+    "Avengers",
+    "Department of Defense",
+    "Force Works",
+    "Guardians of the Galaxy",
+    "Guardians of the Galaxy (2008 team)",
+    "Illuminati",
+    "New Avengers",
+    "S.H.I.E.L.D",
+    "Stark Industries",
+    "Stark Resilient",
+    "The Mighty Avengers",
+    "The New Avengers",
+    "Thunderbolts",
+    "United States Department of Defense",
+    "West Coast Avengers"
+  ],
+  "powers": [
+    "Accelerated Healing",
+    "Durability",
+    "Energy Absorption",
+    "Flight",
+    "Underwater breathing",
+    "Marksmanship",
+    "Super Strength",
+    "Energy Blasts",
+    "Stamina",
+    "Super Speed",
+    "Weapon-based Powers",
+    "Energy Beams",
+    "Reflexes",
+    "Force Fields",
+    "Power Suit",
+    "Radiation Immunity",
+    "Vision - Telescopic",
+    "Magnetism",
+    "Invisibility",
+    "Vision - Night",
+    "Vision - Thermal"
+  ],
+  "partners": [
+    "Pepper Potts",
+    "Rescue",
+    "War Machine"
+  ],
+  "skills": {
+    "intelligence": 100,
+    "strength": 85,
+    "speed": 58,
+    "durability": 85,
+    "power": 100,
+    "combat": 64
+  },
+  "creators": [
+    "Don Heck",
+    "Jack Kirby",
+    "Larry Lieber",
+    "Stan Lee"
+  ]
+}
+```
 
 ## Liens utiles
 
