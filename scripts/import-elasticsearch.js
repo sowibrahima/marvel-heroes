@@ -3,7 +3,6 @@ const fs = require('fs');
 const { Client } = require('@elastic/elasticsearch')
 const heroesIndexName = 'heroes'
 
-
 async function run () {
     const esClient = new Client({ node: 'http://localhost:9200' })
 
@@ -11,6 +10,25 @@ async function run () {
     let line_index = 0;
     let heroes=[]
     let promises = [];
+
+    // Créer mapping pour la suggestion
+    esClient.indices.create({
+        index: heroesIndexName,
+        body: {
+            "mappings": {
+                "properties" : {
+                    "suggest" : {
+                        "type" : "completion"
+                    },
+                    "title" : {
+                        "type": "keyword"
+                    }
+                }
+            }
+        }
+    }, function (err, resp, respcode) {
+        console.log("Response code", respcode);
+    });
 
 
     fs.createReadStream('./all-heroes.csv')
