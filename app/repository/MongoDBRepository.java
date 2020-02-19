@@ -8,9 +8,7 @@ import models.Hero;
 import models.ItemCount;
 import models.YearAndUniverseStat;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 import play.libs.Json;
-import utils.HeroSamples;
 import utils.ReactiveStreamsUtils;
 
 import javax.inject.Inject;
@@ -19,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
