@@ -14,11 +14,11 @@ import utils.SearchedHeroSamples;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Singleton
 public class ElasticRepository {
@@ -35,51 +35,62 @@ public class ElasticRepository {
 
     public CompletionStage<PaginatedResults<SearchedHero>> searchHeroes(String input, int size, int page) {
         String query = "{" +
-                "\"suggest\": {\n" +
-                "        \"hero-suggest\" : {\n" +
-                "            \"prefix\" : \""+input+"\", \n" +
-                "            \"completion\" : { \n" +
-                "                \"field\" : \"suggest\",\n" +
-                "                \"skip_duplicates\": true,\n" +
-                "                \"fuzzy\" : true\n" +
-                "            }\n" +
-                "        }\n" +
-                "    }" +
+                "\"_source\": [\"id\", \"name\", \"imageUrl\", \"universe\", \"gender\"],\n" +
+                "  \"from\": "+page+",\n" +
+                "  \"size\": "+size+", \n" +
+                "  \"query\": {\n" +
+                "    \"multi_match\" : {\n" +
+                "      \"query\":    \""+input+"\", \n" +
+                "      \"fields\": [ \"name\", \"identity.aliases\", \"identity.secretIdentities\", \"description\", \"partners\"]\n" +
+                "    }\n" +
+                "  }" +
                 "}";
 
-        return wsClient.url(elasticConfiguration.uri + "/_search")
+        return wsClient.url(elasticConfiguration.uri + "/heroes/_search")
                 .post(Json.parse(query))
-                 .thenApply(response -> {
+                .thenApply(response -> {
 
-                     ObjectMapper mapper = new ObjectMapper();
-                     try {
-                         JsonNode rootNode = mapper.readTree(response.getBody());
-                         JsonNode suggestNode = rootNode.path("suggest");
-                         drNode.
-                     } catch (IOException e) {
-                         e.printStackTrace();
-                     }
+                    List<SearchedHero> heroes = new ArrayList<>();
+                    JsonNode rootNode = Json.parse(response.getBody());
 
-                     /*
+                    for (JsonNode hitNode : rootNode.path("hits").path("hits")) {
+                        JsonNode sourceNode = hitNode.path("_source");
 
-                     List<SearchedHero> heroes = null;
-                     try {
-                         heroes = Arrays.asList(mapper.readValue(response.getBody(), SearchedHero[].class));
-                     } catch (IOException e) {
-                         e.printStackTrace();
-                         heroes = Collections.emptyList();
-                     }*/
-                     return CompletableFuture.completedFuture(new PaginatedResults<>(size, page, 1, heroes));
-                 });
+                        heroes.add(new SearchedHero(sourceNode.get("id").asText(), sourceNode.get("imageUrl").asText(),
+                                sourceNode.get("name").asText(), sourceNode.get("universe").asText(), sourceNode.get("gender").asText()));
+                    }
+
+                    int total = rootNode.path("total").path("value").asInt();
+                    return (new PaginatedResults<SearchedHero>(total, page, (int) Math.ceil(1.*total/size), heroes));
+                });
     }
 
     public CompletionStage<List<SearchedHero>> suggest(String input) {
-        return CompletableFuture.completedFuture(Arrays.asList(SearchedHeroSamples.IronMan(), SearchedHeroSamples.MsMarvel(), SearchedHeroSamples.SpiderMan()));
-        // TODO
-        // return wsClient.url(elasticConfiguration.uri + "...")
-        //         .post(Json.parse("{ ... }"))
-        //         .thenApply(response -> {
-        //             return ...
-        //         });
+        String query = "{" +
+                "\"_source\": [\"id\", \"name\", \"imageUrl\", \"universe\", \"gender\"],\n" +
+                "  \"suggest\": {\n" +
+                "      \"hero-suggest\" : {\n" +
+                "          \"prefix\" : \""+input+"\", \n" +
+                "          \"completion\" : { \n" +
+                "              \"field\" : \"suggest\",\n" +
+                "              \"skip_duplicates\": true,\n" +
+                "              \"fuzzy\" : true\n" +
+                "          }\n" +
+                "      }\n" +
+                "  }" +
+                "}";
+
+        return wsClient.url(elasticConfiguration.uri + "/heroes/_search")
+                .post(Json.parse(query))
+                .thenApply(response -> {
+                    List<SearchedHero> heroes = new ArrayList<>();
+                    JsonNode rootNode = Json.parse(response.getBody());
+                    for (JsonNode optionNode : rootNode.path("suggest").path("hero-suggest").path("options")) {
+                        JsonNode sourceNode = optionNode.path("_source");
+                        heroes.add(new SearchedHero(sourceNode.get("id").asText(), sourceNode.get("imageUrl").asText(),
+                                sourceNode.get("name").asText(), sourceNode.get("universe").asText(), sourceNode.get("gender").asText()));
+                    }
+                    return heroes;
+                });
     }
 }

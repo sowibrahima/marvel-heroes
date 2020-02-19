@@ -35,7 +35,6 @@ public class RedisRepository {
     }
 
     private CompletionStage<Boolean> incrHeroInTops(StatItem statItem) {
-        // TODO
         return CompletableFuture.completedFuture(true);
     }
 
