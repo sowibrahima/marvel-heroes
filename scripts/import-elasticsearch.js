@@ -1,14 +1,14 @@
 const csv = require('csv-parser');
 const fs = require('fs');
-const { Client } = require('@elastic/elasticsearch')
-const heroesIndexName = 'heroes'
+const { Client } = require('@elastic/elasticsearch');
+const heroesIndexName = 'heroes';
 
 async function run () {
-    const esClient = new Client({ node: 'http://localhost:9200' })
+    const esClient = new Client({ node: 'http://localhost:9200' });
 
     // Read CSV file
     let line_index = 0;
-    let heroes=[]
+    let heroes=[];
     let promises = [];
 
     // Créer mapping pour la suggestion
@@ -37,7 +37,7 @@ async function run () {
         }))
         .on('data', (data) => {
             // Increment sub array index
-            if(line_index%10000===0 && line_index!=0){
+            if(line_index%10000===0 && line_index!==0){
                 // Copy array
                 const heroesDuplicate = [...heroes];
                 
@@ -60,37 +60,24 @@ async function run () {
             }
 
             heroes.push({
-                "suggest": [{input:data.name,weight:10},{input:data.aliases,weight:8},{input:data.secretIdentities,weight:8},{input:data.description,weight:5},{input:data.partners,weight:4}],
-                "name": data.name,
-                "birth_date": data.birth_date,
-                "description":data.description,
+                "id": data.id,
+                "suggest": [{input:data.name,weight:10},{input:data.aliases,weight:8},{input:data.identity,weight:8},{input:data.description,weight:5},{input:data.partners,weight:4}],
                 "imageUrl":data.imageUrl,
-                "backgroundImageUrl":data.backgroundImageUrl,
-                "externalLink":data.externalLink,
-                "secretIdentities":data.secretIdentities,
-                "birthPlace":data.birthPlace,
-                "occupation":data.occupation,
-                "aliases":data.aliases,
-                "alignment":data.alignment,
-                "firstAppearance":data.firstAppearance,
+                "name": data.name,
                 "universe":data.universe,
                 "gender":data.gender,
-                "race":data.race,
-                "type":data.type,
-                "height":data.height,
-                "weight":data.weight,
-                "eyeColor":data.eyeColor,
-                "hairColor":data.hairColor,
-                "teams":data.teams,
-                "powers":data.powers,
-                "partners":data.partners,
-                "intelligence":data.intelligence,
-                "strength":data.strength,
-                "speed":data.speed,
-                "durability":data.durability,
-                "power":data.power,
-                "combat":data.combat,
-                "creators":data.creators
+                "description":data.description,
+                "identity": {
+                    "secretIdentities": data.secretIdentities,
+                    "birthPlace": data.birthPlace,
+                    "occupation": data.occupation,
+                    "aliases": data.aliases,
+                    "alignment": data.alignment,
+                    "firstAppearance": data.firstAppearance,
+                    "yearAppearance": data.yearAppearance,
+                    "universe": data.universe
+                },
+                "partners":data.partners
             });            
 
             // Increment index
@@ -113,9 +100,9 @@ async function run () {
 
         function createBulkInsertQuery(heroes) {
             const body = heroes.reduce((he, hero) => {
-              he.push({ index: { _index: heroesIndexName, _type: '_doc', _id: hero.object_id } })
-              he.push(hero)
-              return he
+              he.push({ index: { _index: heroesIndexName, _type: '_doc', _id: hero.object_id } });
+              he.push(hero);
+              return he;
             }, []);
             
             return { 
