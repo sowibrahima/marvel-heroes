@@ -68,16 +68,16 @@ async function run () {
                 "gender":data.gender,
                 "description":data.description,
                 "identity": {
-                    "secretIdentities": data.secretIdentities,
+                    "secretIdentities": data.secretIdentities.split(',').map(s=>s.trim()),
                     "birthPlace": data.birthPlace,
                     "occupation": data.occupation,
-                    "aliases": data.aliases,
+                    "aliases": data.aliases.split(',').map(s=>s.trim()),
                     "alignment": data.alignment,
                     "firstAppearance": data.firstAppearance,
                     "yearAppearance": data.yearAppearance,
                     "universe": data.universe
                 },
-                "partners":data.partners
+                "partners":data.partners.split(',').map(s=>s.trim())
             });            
 
             // Increment index
