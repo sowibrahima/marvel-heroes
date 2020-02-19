@@ -36,8 +36,6 @@ public class MongoDBRepository {
 
 
     public CompletionStage<Optional<Hero>> heroById(String heroId) {
-//        return HeroSamples.staticHero(heroId);
-        // TODO
         String query = "{ id : \""+ heroId +"\"}";
         Document document = Document.parse(query);
         return ReactiveStreamsUtils.fromSinglePublisher(heroesCollection.find(document).first())
@@ -80,22 +78,32 @@ public class MongoDBRepository {
 
 
     public CompletionStage<List<ItemCount>> topPowers(int top) {
-        return CompletableFuture.completedFuture(new ArrayList<>());
-        // TODO
-//         List<Document> pipeline = new ArrayList<>();
-//
-//
-//
-//         return ReactiveStreamsUtils.fromMultiPublisher(heroesCollection.aggregate(pipeline))
-//                 .thenApply(documents -> {
-//                     return documents.stream()
-//                             .map(Document::toJson)
-//                             .map(Json::parse)
-//                             .map(jsonNode -> {
-//                                 return new ItemCount(jsonNode.findPath("_id").asText(), jsonNode.findPath("count").asInt());
-//                             })
-//                             .collect(Collectors.toList());
-//                 });
+
+        //return CompletableFuture.completedFuture(new ArrayList<>());
+
+        List<Document> pipeline = new ArrayList<>();
+        Document match = new Document("$match", new Document("$powers", new Document("$exists", true).append("$ne", "")));
+        Document unwind = new Document("$unwind", "$powers");
+        Document group = new Document("$group", new Document("_id", new Document("power", "$powers")).append("count", new Document("$sum", 1)));
+        Document sort = new Document("$sort", new Document("count", -1));
+        Document limit = new Document("$limit", top);
+
+        pipeline.add(match);
+        pipeline.add(unwind);
+        pipeline.add(group);
+        pipeline.add(sort);
+        pipeline.add(limit);
+        
+         return ReactiveStreamsUtils.fromMultiPublisher(heroesCollection.aggregate(pipeline))
+                 .thenApply(documents -> {
+                     return documents.stream()
+                             .map(Document::toJson)
+                             .map(Json::parse)
+                             .map(jsonNode -> {
+                                 return new ItemCount(jsonNode.findPath("_id").findPath("power").asText(), jsonNode.findPath("count").asInt());
+                             })
+                             .collect(Collectors.toList());
+                 });
     }
 
     public CompletionStage<List<ItemCount>> byUniverse() {
