@@ -104,19 +104,25 @@ public class MongoDBRepository {
     }
 
     public CompletionStage<List<ItemCount>> byUniverse() {
-        return CompletableFuture.completedFuture(new ArrayList<>());
-        // TODO
-        // List<Document> pipeline = new ArrayList<>();
-        // return ReactiveStreamsUtils.fromMultiPublisher(heroesCollection.aggregate(pipeline))
-        //         .thenApply(documents -> {
-        //             return documents.stream()
-        //                     .map(Document::toJson)
-        //                     .map(Json::parse)
-        //                     .map(jsonNode -> {
-        //                         return new ItemCount(jsonNode.findPath("_id").asText(), jsonNode.findPath("count").asInt());
-        //                     })
-        //                     .collect(Collectors.toList());
-        //         });
+         List<Document> pipeline = new ArrayList<>();
+
+         Document sub_group = new Document();
+         sub_group.put("_id","$identity.universe");
+         sub_group.put("count",new Document("$sum",1));
+
+         Document group1 = new Document("$group",sub_group);
+         pipeline.add(group1);
+
+         return ReactiveStreamsUtils.fromMultiPublisher(heroesCollection.aggregate(pipeline))
+                 .thenApply(documents -> {
+                     return documents.stream()
+                             .map(Document::toJson)
+                             .map(Json::parse)
+                             .map(jsonNode -> {
+                                 return new ItemCount(jsonNode.findPath("_id").asText(), jsonNode.findPath("count").asInt());
+                             })
+                             .collect(Collectors.toList());
+                 });
     }
 
 }
