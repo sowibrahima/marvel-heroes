@@ -16,36 +16,42 @@ const insertHeroes = (db, callback) => {
         // Pour chaque ligne on créé un document JSON pour l'heroes correspondant
         .on('data', data => {
             heroes.push({
+                "id": data.id,
                 "name": data.name,
-                "birth_date": data.birth_date,
                 "description":data.description,
                 "imageUrl":data.imageUrl,
                 "backgroundImageUrl":data.backgroundImageUrl,
                 "externalLink":data.externalLink,
-                "secretIdentities":data.secretIdentities,
-                "birthPlace":data.birthPlace,
-                "occupation":data.occupation,
-                "aliases":data.aliases,
-                "alignment":data.alignment,
-                "firstAppearance":data.firstAppearance,
-                "universe":data.universe,
-                "gender":data.gender,
-                "race":data.race,
-                "type":data.type,
-                "height":data.height,
-                "weight":data.weight,
-                "eyeColor":data.eyeColor,
-                "hairColor":data.hairColor,
-                "teams":data.teams,
-                "powers":data.powers,
-                "partners":data.partners,
-                "intelligence":data.intelligence,
-                "strength":data.strength,
-                "speed":data.speed,
-                "durability":data.durability,
-                "power":data.power,
-                "combat":data.combat,
-                "creators":data.creators
+                "identity":{"secretIdentities":data.secretIdentities.split(',').map(s=>s.trim()),
+                    "birthPlace":data.birthPlace,
+                    "occupation":data.occupation,
+                    "aliases":data.aliases.split(',').map(s=>s.trim()),
+                    "alignment":data.alignment,
+                    "firstAppearance":data.firstAppearance,
+                    "yearAppearance":data.firstAppearance.substr(-5,4),
+                    "universe":data.universe
+                },
+                "appearance":{
+                    "gender":data.gender,
+                    "race":data.race,
+                    "type":data.type,
+                    "height":data.height,
+                    "weight":data.weight,
+                    "eyeColor":data.eyeColor,
+                    "hairColor":data.hairColor
+                },
+                "teams":data.teams.split(',').map(s=>s.trim()),
+                "powers":data.powers.split(',').map(s=>s.trim()),
+                "partners":data.partners.split(',').map(s=>s.trim()),
+                "skills":{
+                    "intelligence":data.intelligence,
+                    "strength":data.strength,
+                    "speed":data.speed,
+                    "durability":data.durability,
+                    "power":data.power,
+                    "combat":data.combat
+                },
+                "creators":data.creators.split(',').map(s=>s.trim())
             });
         })
         // A la fin on créé l'ensemble des acteurs dans MongoDB
