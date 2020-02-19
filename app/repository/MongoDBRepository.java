@@ -36,8 +36,6 @@ public class MongoDBRepository {
 
 
     public CompletionStage<Optional<Hero>> heroById(String heroId) {
-//        return HeroSamples.staticHero(heroId);
-        // TODO
         String query = "{ id : \""+ heroId +"\"}";
         Document document = Document.parse(query);
         return ReactiveStreamsUtils.fromSinglePublisher(heroesCollection.find(document).first())
@@ -45,18 +43,25 @@ public class MongoDBRepository {
     }
 
     public CompletionStage<List<YearAndUniverseStat>> countByYearAndUniverse() {
-//        return CompletableFuture.completedFuture(new ArrayList<>());
-        // TODO
          List<Document> pipeline = new ArrayList<>();
-         Document sub_group = new Document();
-         sub_group.put("_id","$yearAppearance");
-         sub_group.put("count",new Document("$sum",1));
 
-         Document group = new Document("$group",sub_group);
-         Document sort = new Document("$sort",new Document("_id",1));
+         Document sub_match = new Document();
+         sub_match.put("identity.yearAppearance",new Document("$ne",""));
 
-         pipeline.add(group);
-         pipeline.add(sort);
+         Document sub_group1 = new Document();
+         sub_group1.put("_id",new Document("yearAppearance","$identity.yearAppearance").append("universe","$identity.universe"));
+         sub_group1.put("count",new Document("$sum",1));
+         Document sub_group2 = new Document();
+         sub_group2.put("_id","$_id.yearAppearance");
+         sub_group2.put("byUniverse",new Document("$push",new Document("universe","$_id.universe").append("count","$count")));
+
+         Document match = new Document("$match",sub_match);
+         Document group1 = new Document("$group",sub_group1);
+         Document group2 = new Document("$group",sub_group2);
+
+         pipeline.add(match);
+         pipeline.add(group1);
+         pipeline.add(group2);
 
          return ReactiveStreamsUtils.fromMultiPublisher(heroesCollection.aggregate(pipeline))
                 .thenApply(documents -> {
@@ -64,7 +69,7 @@ public class MongoDBRepository {
                                     .map(Document::toJson)
                                     .map(Json::parse)
                                     .map(jsonNode -> {
-                                        int year = jsonNode.findPath("_id").findPath("yearAppearance").asInt();
+                                        int year = jsonNode.findPath("_id").asInt();
                                         ArrayNode byUniverseNode = (ArrayNode) jsonNode.findPath("byUniverse");
                                         Iterator<JsonNode> elements = byUniverseNode.elements();
                                         Iterable<JsonNode> iterable = () -> elements;
