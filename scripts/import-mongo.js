@@ -28,7 +28,7 @@ const insertHeroes = (db, callback) => {
                     "aliases":data.aliases.split(',').map(s=>s.trim()),
                     "alignment":data.alignment,
                     "firstAppearance":data.firstAppearance,
-                    "yearAppearance":data.firstAppearance.substr(-5,4),
+                    "yearAppearance":data.yearAppearance,
                     "universe":data.universe
                 },
                 "appearance":{
