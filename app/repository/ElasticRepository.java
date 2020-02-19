@@ -4,6 +4,7 @@ import env.ElasticConfiguration;
 import env.MarvelHeroesConfiguration;
 import models.PaginatedResults;
 import models.SearchedHero;
+import play.libs.Json;
 import play.libs.ws.WSClient;
 import utils.SearchedHeroSamples;
 
@@ -29,12 +30,12 @@ public class ElasticRepository {
 
     public CompletionStage<PaginatedResults<SearchedHero>> searchHeroes(String input, int size, int page) {
         return CompletableFuture.completedFuture(new PaginatedResults<>(3, 1, 1, Arrays.asList(SearchedHeroSamples.IronMan(), SearchedHeroSamples.MsMarvel(), SearchedHeroSamples.SpiderMan())));
-        // TODO
-        // return wsClient.url(elasticConfiguration.uri + "...")
-        //         .post(Json.parse("{ ... }"))
-        //         .thenApply(response -> {
-        //             return ...
-        //         });
+
+        return wsClient.url(elasticConfiguration.uri + "..." + elasticConfiguration.)
+                .post(Json.parse("{}"))
+                 .thenApply(response -> {
+                     return response;
+                 });
     }
 
     public CompletionStage<List<SearchedHero>> suggest(String input) {

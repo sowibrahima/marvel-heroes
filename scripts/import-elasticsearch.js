@@ -60,6 +60,7 @@ async function run () {
             }
 
             heroes.push({
+                "suggest": [{input:data.name,weight:10},{input:data.aliases,weight:8},{input:data.secretIdentities,weight:8},{input:data.description,weight:5},{input:data.partners,weight:4}],
                 "name": data.name,
                 "birth_date": data.birth_date,
                 "description":data.description,
